@@ -1,14 +1,18 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import Post, User
 
 
 def index(request):
-    return render(request, "network/index.html")
+    # listings = AuctionListing.objects.filter(active=True).order_by('-created_at')
+    posts = Post.objects.all()
+    return render(request, "network/index.html", {
+        "posts": posts
+    })
 
 
 def login_view(request):
@@ -61,3 +65,34 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+
+def get_modal_content(request):
+    return render(request, 'network/new_post_modal.html')
+
+
+def create_post(request):
+    if request.method == "POST":
+        content = request.POST.get("content", "").strip()
+        image = request.FILES.get("image")
+
+        # Validate: must have content or image
+        if not content and not image:
+            return JsonResponse({
+                "success": False,
+                "error": "Post must have content or an image."
+            }, status=400)
+
+        Post.objects.create(
+            owner=request.user,
+            contents=content,
+            images=image
+        )
+
+        return JsonResponse({
+            "success": True,
+            "message": "Post created successfully!"
+        })
+    
+    return HttpResponseRedirect(reverse("index"))
+

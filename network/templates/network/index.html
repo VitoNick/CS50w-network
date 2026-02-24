@@ -1,5 +1,35 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    <div class="posts-container">
+        {% if posts %}
+            {% for post in posts %}
+                <div class="post-card">
+                    <div class="post-header">
+                        <h5 class="post-username">{{ post.owner.username }}</h5>
+                        <span class="post-timestamp">{{ post.created_at|timesince }} ago</span>
+                    </div>
+                    
+                    {% if post.contents %}
+                        <p class="post-content">{{ post.contents }}</p>
+                    {% endif %}
+                    
+                    {% if post.images %}
+                        <img src="{{ post.images.url }}" alt="Post image" class="post-image" width="600" height="auto">
+                    {% endif %}
+                    
+                    <div class="post-footer">
+                        <span>💬 Comment</span>
+                        <span>❤️ Like</span>
+                        <span>🔄 Share</span>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <h3>No posts yet</h3>
+                <p>Be the first to share something!</p>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}

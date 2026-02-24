@@ -1,0 +1,17 @@
+<h2>Create New Post</h2>
+<form method="post" action="{% url 'create_post' %}" enctype="multipart/form-data">
+  {% csrf_token %}
+  
+  <div class="form-group">
+    <label for="post-content">What's on your mind?</label>
+    <textarea 
+      class="form-control" 
+      id="post-content" 
+      name="content"
+      rows="4" 
+      placeholder="Share your thoughts..."
+    ></textarea>
+    <input type="file" class="form-control-file" id="post-image" name="image">
+  </div>
+  <button type="submit" class="btn btn-primary">Post</button>
+</form>

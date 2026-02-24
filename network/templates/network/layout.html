@@ -11,8 +11,8 @@
     </head>
     <body>
 
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Network</a>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="{% url 'index' %}">Network</a>
           
             <div>
               <ul class="navbar-nav mr-auto">
@@ -39,13 +39,34 @@
                         <a class="nav-link" href="{% url 'register' %}">Register</a>
                     </li>
                 {% endif %}
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <button id="openModalBtn" class="btn btn-primary btn-sm" data-url="{% url 'get_modal_content' %}">New Post</button>
+                    </li>
+                {% endif %}
+
               </ul>
             </div>
           </nav>
+
+        <!-- Modal for new post (only for authenticated users) -->
+        {% if user.is_authenticated %}
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">x</span>
+                    <div id="modal-body-content">
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         
         <div class="body">
             {% block body %}
             {% endblock %}
         </div>
+
+        <script src="{% static 'network/network.js' %}"></script>
+        {% block script %}
+        {% endblock %}
     </body>
 </html>
