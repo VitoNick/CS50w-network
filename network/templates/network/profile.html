@@ -1,0 +1,20 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div class="profile-container">
+        <h2>{{ profile_user.username }}'s Profile
+            <button id="followBtn" class="btn btn-primary">
+            {% if is_following %}
+                Unfollow
+            {% else %}
+                Follow
+            {% endif %}
+        </button>
+        </h2>
+        <p>Joined {{ profile_user.date_joined|date:"F j, Y" }}</p>
+        <p>{{ profile_user.posts.count }} Posts</p>
+        <p>{{ profile_user.followers.count }} Followers</p>
+        <p>{{ profile_user.following.count }} Following</p>
+        <!-- Add more profile details as needed -->
+    </div>
+{% endblock body %}

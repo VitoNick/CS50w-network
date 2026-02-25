@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 
@@ -96,3 +96,17 @@ def create_post(request):
     
     return HttpResponseRedirect(reverse("index"))
 
+def profile(request, username):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return render(request, "network/profile.html", {
+            "error": "User not found."
+        })
+
+    posts = user.posts.all() # type: ignore[attr-defined]
+
+    return render(request, "network/profile.html", {
+        "profile_user": user,
+        "posts": posts
+    })

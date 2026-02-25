@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>{% block title %}Social Network{% endblock %}</title>
+        <title>{% block title %}Social Network{% endblock title %}</title>
         <meta name="description" content="A school project social networking web app">
         <meta name="keywords" content="social network, posts, network">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -62,11 +62,11 @@
         
         <div class="body">
             {% block body %}
-            {% endblock %}
+            {% endblock body %}
         </div>
 
         <script src="{% static 'network/network.js' %}"></script>
         {% block script %}
-        {% endblock %}
+        {% endblock script %}
     </body>
 </html>
