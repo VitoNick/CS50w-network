@@ -2,19 +2,42 @@
 
 {% block body %}
     <div class="profile-container">
-        <h2>{{ profile_user.username }}'s Profile
-            <button id="followBtn" class="btn btn-primary">
-            {% if is_following %}
-                Unfollow
-            {% else %}
-                Follow
+        <div class="profile-header">
+            <h2>{{ profile_user.username }}</h2>
+            <p class="text-muted">Joined {{ profile_user.date_joined|date:"F j, Y" }}</p>
+            <div class="profile-stats">
+                <span><strong>{{ profile_user.posts.count }}</strong> Posts</span>
+                <span><strong>{{ profile_user.followers.count }}</strong> Followers</span>
+                <span><strong>{{ profile_user.following.count }}</strong> Following</span>
+            </div>
+
+            {% if user.is_authenticated and user != profile_user %}
+                <form method="post" action="{% url 'toggle_follow' profile_user.username %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn {% if is_following %}btn-outline-primary{% else %}btn-primary{% endif %}">
+                        {% if is_following %}Unfollow{% else %}Follow{% endif %}
+                    </button>
+                </form>
             {% endif %}
-        </button>
-        </h2>
-        <p>Joined {{ profile_user.date_joined|date:"F j, Y" }}</p>
-        <p>{{ profile_user.posts.count }} Posts</p>
-        <p>{{ profile_user.followers.count }} Followers</p>
-        <p>{{ profile_user.following.count }} Following</p>
-        <!-- Add more profile details as needed -->
+        </div>
+
+        <hr>
+
+        <div class="posts-feed">
+            {% for post in posts %}
+                <div class="post-card">
+                    <div class="post-header">
+                        <span class="post-username">{{ post.owner.username }}</span>
+                        <span class="post-timestamp">{{ post.created_at|timesince }} ago</span>
+                    </div>
+                    <div class="post-content">{{ post.contents }}</div>
+                    {% if post.images %}
+                        <img src="{{ post.images.url }}" alt="Post image" class="post-image">
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p class="empty-state">No posts yet.</p>
+            {% endfor %}
+        </div>
     </div>
 {% endblock body %}

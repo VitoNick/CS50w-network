@@ -1,17 +1,25 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect, HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
-from .models import Post, User
+from .models import Follower, Post, User
 
 
 def index(request):
-    # listings = AuctionListing.objects.filter(active=True).order_by('-created_at')
     posts = Post.objects.all()
+
+    paginator = Paginator(posts, 10)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "network/index.html", {
-        "posts": posts
+        'page_obj': page_obj
     })
 
 
@@ -71,42 +79,79 @@ def get_modal_content(request):
     return render(request, 'network/new_post_modal.html')
 
 
+@login_required
+@require_POST
 def create_post(request):
-    if request.method == "POST":
-        content = request.POST.get("content", "").strip()
-        image = request.FILES.get("image")
+    content = request.POST.get("content", "").strip()
+    image = request.FILES.get("image")
 
-        # Validate: must have content or image
-        if not content and not image:
-            return JsonResponse({
-                "success": False,
-                "error": "Post must have content or an image."
-            }, status=400)
-
-        Post.objects.create(
-            owner=request.user,
-            contents=content,
-            images=image
-        )
-
+    if not content and not image:
         return JsonResponse({
-            "success": True,
-            "message": "Post created successfully!"
-        })
-    
-    return HttpResponseRedirect(reverse("index"))
+            "success": False,
+            "error": "Post must have content or an image."
+        }, status=400)
+
+    Post.objects.create(
+        owner=request.user,
+        contents=content,
+        images=image
+    )
+
+    return JsonResponse({
+        "success": True,
+        "message": "Post created successfully!"
+    })
+
 
 def profile(request, username):
     try:
-        user = User.objects.get(username=username)
+        profile_user = User.objects.get(username=username)
     except User.DoesNotExist:
         return render(request, "network/profile.html", {
             "error": "User not found."
         })
 
-    posts = user.posts.all() # type: ignore[attr-defined]
+    posts = profile_user.posts.all()  # type: ignore[attr-defined]
+
+    is_following = (
+        request.user.is_authenticated
+        and request.user != profile_user
+        and Follower.objects.filter( 
+            user=profile_user, follower=request.user
+        ).exists()
+    )
 
     return render(request, "network/profile.html", {
-        "profile_user": user,
+        "profile_user": profile_user,
+        "posts": posts,
+        "is_following": is_following,
+    })
+
+
+@login_required
+@require_POST
+def toggle_follow(request, username):
+    try:
+        target = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found."}, status=404)
+
+    if request.user == target:
+        return JsonResponse({"error": "You cannot follow yourself."}, status=400)
+
+    obj, created = Follower.objects.get_or_create( 
+        user=target, follower=request.user
+    )
+    if not created:
+        obj.delete()  # If following, unfollow
+
+    return HttpResponseRedirect(reverse("profile", args=[username]))
+    
+
+@login_required
+def following_posts(request):
+    following_users = request.user.following.values_list('user', flat=True)
+    posts = Post.objects.filter(owner__in=following_users)
+    return render(request, "network/following.html", {
         "posts": posts
     })

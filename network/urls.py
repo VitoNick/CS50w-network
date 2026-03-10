@@ -11,4 +11,6 @@ urlpatterns = [
     path("modal/new-post", views.get_modal_content, name="get_modal_content"),
     path("post/create", views.create_post, name="create_post"),
     path("profile/<str:username>", views.profile, name="profile"),
+    path("profile/<str:username>/follow", views.toggle_follow, name="toggle_follow"),
+    path("following", views.following_posts, name="following_posts"),
 ]
