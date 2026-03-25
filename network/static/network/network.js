@@ -85,4 +85,28 @@ document.addEventListener("DOMContentLoaded", function () {
 		const form = modalBody.querySelector("form");
 		form.insertBefore(errorDiv, form.firstChild);
 	}
+
+	const csrfToken = document.cookie.split('; ')
+		.find(row => row.startsWith('csrftoken='))
+		?.split('=')[1];
+
+	document.querySelectorAll('.like-btn').forEach(btn => {
+		btn.addEventListener('click', async (e) => {
+			console.log("Like button clicked");
+			e.preventDefault();
+			const postId = btn.dataset.postId;  // only this post's ID
+			const response = await fetch(`/post/${postId}/like`, {
+				method: 'POST',
+				headers: {
+					'X-CSRFToken': csrfToken
+				}
+			});
+			const data = await response.json();
+			if (data.success) {
+				btn.textContent = `❤️ Like ${data.likes_count}`;
+			} else {
+				console.error("Error liking post:", data.error);
+			}
+		});
+	});
 });

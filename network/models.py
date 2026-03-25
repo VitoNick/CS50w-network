@@ -5,6 +5,7 @@ from django.db import models
 class User(AbstractUser):
     pass
 
+
 class Post(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     contents = models.TextField(blank=True, default="")
@@ -18,11 +19,15 @@ class Post(models.Model):
     def __str__(self):
         return f"{self.owner.username}: {self.contents[:30]}..."
 
-    
 
 class Like(models.Model):
-    # TODO:
-    pass
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='liked')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
+    
+    class Meta:
+        unique_together = ('owner', 'post')
+        ordering = ['-id']  # Newest first
+
 
 class Follower(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')

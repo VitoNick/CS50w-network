@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from .models import Follower, Post, User
+from .models import Follower, Like, Post, User
 
 
 def index(request):
@@ -154,4 +154,24 @@ def following_posts(request):
     posts = Post.objects.filter(owner__in=following_users)
     return render(request, "network/following.html", {
         "posts": posts
+    })
+
+
+@login_required
+@require_POST
+def like_post(request, post_id):
+    try:
+        target = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found."}, status=404)
+
+    obj, created = Like.objects.get_or_create( 
+        owner=request.user, post=target
+    )
+    if not created:
+        obj.delete()  # If liked, unlike
+
+    return JsonResponse({
+        "success": True,
+        "likes_count": target.likes.count()
     })

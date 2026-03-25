@@ -4,7 +4,7 @@
     <div class="posts-container">
         {% if page_obj %}
             {% for post in page_obj %}
-                <div class="post-card">
+                <div class="post-card" data-post-id="{{ post.id }}">
                     <div class="post-header">
                         <h5 class="post-username"><a href="{% url 'profile' post.owner.username %}">{{ post.owner.username }}</a></h5>
                         <span class="post-timestamp">{{ post.created_at|timesince }} ago</span>
@@ -20,7 +20,7 @@
                     
                     <div class="post-footer">
                         <span>💬 Comment</span>
-                        <span>❤️ Like</span>
+                        <span><a class="like-btn" data-post-id="{{ post.id }}" href="{% url 'like_post' post.id %}">❤️ Like {{ post.likes.count }}</a></span>
                         <span>🔄 Share</span>
                     </div>
                 </div>
