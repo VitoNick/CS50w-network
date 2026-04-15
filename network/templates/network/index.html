@@ -20,7 +20,12 @@
                     
                     <div class="post-footer">
                         <span>💬 Comment</span>
-                        <span><a class="like-btn" data-post-id="{{ post.id }}" href="{% url 'like_post' post.id %}">❤️ Like {{ post.likes.count }}</a></span>
+                        <span>
+                            <a class="like-btn" 
+                                data-post-id="{{ post.id }}" 
+                                href="{% url 'like_post' post.id %}
+                                ">❤️ Like {{ post.likes.count }}</a>
+                        </span>
                         <span>🔄 Share</span>
                     </div>
                 </div>
